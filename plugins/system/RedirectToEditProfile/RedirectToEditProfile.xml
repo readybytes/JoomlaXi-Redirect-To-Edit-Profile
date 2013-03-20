@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<install version="1.5" type="plugin" group="system" method="upgrade">
+  <name>Redirect to Edit Profile</name>
+  <version>2.1.10</version>
+  <creationDate>July 2009</creationDate>
+  <author>Team Joomlaxi</author>
+  <authorEmail>shyam@joomlaxi.com</authorEmail>
+  <authorUrl>http://www.joomlaxi.com/</authorUrl>
+  <copyright>joomlaxi.com</copyright>
+  <license>GNU/GPL</license>
+  <description> This extension can redirect user on edit profile page when jomsocial profile field is empty.
+  User can be forced to complete profile before he goes anywhere else. Or you can redirect him once on login.
+  This plugin can also check for Not-Required field, if mentioned in backend.
+  </description>
+  <files>  	
+	<filename plugin="RedirectToEditProfile">RedirectToEditProfile.php</filename>
+  </files>
+  <params>
+		<param name="whenredirect" type="radio" default="0" label="When to redirect user" description="Select 'Just After login' when you want to redirect only after login else select 'Everytime'.">
+			<option value="1">Everytime</option>
+			<option value="0">Just After Login</option>
+		</param>
+		<param name="whichfield" type="radio" default="1" label="For which fields" description="Select 'All' if you want to check completness of all field else select 'Only required filed' if you want that only required field should complete.">
+			<option value="0">All</option>
+			<option value="1">Only Required Field</option>
+		</param>
+		<param name="message" type="textarea" rows="2" cols="30" default="" label="Write message" description="Write Message here to display when user is redirected forcefully to edit profile page">
+			
+		</param>
+	</params>
+</install>
