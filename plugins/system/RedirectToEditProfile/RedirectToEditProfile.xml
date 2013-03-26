@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <extension version="1.5" type="plugin" group="system" method="upgrade">
   <name>Redirect to Edit Profile</name>
-  <version>2.1.10</version>
+  <version>2.2</version>
   <creationDate>July 2009</creationDate>
   <author>Team Joomlaxi</author>
   <authorEmail>team@readybytes.in</authorEmail>
