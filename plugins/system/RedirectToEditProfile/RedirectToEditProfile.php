@@ -10,12 +10,13 @@
 defined('_JEXEC') or die('Restricted access to this plugin'); 
 
 jimport('joomla.plugin.plugin');
+jimport( 'joomla.filesystem.folder' );
 
 class plgSystemRedirectToEditProfile extends JPlugin
 {
-	function __construct(& $subject, $params )
+	function __construct(& $subject, $config = array() )
 	{
-		parent::__construct( $subject, $params );
+		parent::__construct( $subject, $config);
 	}
 	
 	function onAfterRoute()
@@ -65,6 +66,7 @@ class plgSystemRedirectToEditProfile extends JPlugin
 			$app = JFactory::getApplication();
 			$app->enqueueMessage($message);
 			$app->setUserState('users.login.form.return', $url);
+			echo JResponse::toString(JFactory::getApplication()->input->get('gzip'));
 		}
 		return true;
 	}
