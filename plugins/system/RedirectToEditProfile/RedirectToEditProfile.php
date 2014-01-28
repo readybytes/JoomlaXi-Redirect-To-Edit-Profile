@@ -1,4 +1,4 @@
- <?php
+<?php
 
 /*
 * Author 	: Team JoomlaXi @ Ready Bytes Software Labs Pvt. Ltd.
