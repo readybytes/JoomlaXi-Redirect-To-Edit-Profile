@@ -9,8 +9,15 @@
 
 defined('_JEXEC') or die('Restricted access to this plugin'); 
 
+include_once JPATH_ROOT.'/components/com_xipt/api.xipt.php';
+
+if(!defined('DS')){
+	define('DS', DIRECTORY_SEPARATOR);
+}
+
 jimport('joomla.plugin.plugin');
-jimport( 'joomla.filesystem.folder' );
+jimport('joomla.filesystem.file');
+jimport('joomla.filesystem.folder');
 
 class plgSystemRedirectToEditProfile extends JPlugin
 {
@@ -22,11 +29,19 @@ class plgSystemRedirectToEditProfile extends JPlugin
 	function onAfterRoute()
 	{
 		$params = $this->params;
-	
+		
+		$userId    =  JFactory::getUser();
+		
 		//whenredirect 0 means redirect only at login else everytime
 		$whenredirect	= $params->get('whenredirect',0);
 		$whichfield 	= $params->get('whichfield',0);
 		$message  		= $params->get('message');
+		$profiletype    = $params->get('profiletype');
+		
+		if (!$profiletype)
+		{
+			return true;
+		}
 	
 		if(!$whenredirect) { // After login action will be handled by onuserlogin event
 			return true; 
@@ -37,10 +52,14 @@ class plgSystemRedirectToEditProfile extends JPlugin
 		if(!self::_isApplicable()) {
 			return false;
 		}
-				
-		if (self::_isRedirectRequired(JFactory::getUser()->id, $whichfield)) {
-			$url = CRoute::_('index.php?option=com_community&view=profile&task=edit',false);
-			JFactory::getApplication()->redirect( $url,$message);
+		
+		$userProfiletype = XiptAPI::getUserProfiletype($userId->id);
+		if(in_array($userProfiletype, $profiletype))
+		{		
+			if (self::_isRedirectRequired(JFactory::getUser()->id, $whichfield)) {
+				$url = CRoute::_('index.php?option=com_community&view=profile&task=edit',false);
+				JFactory::getApplication()->redirect( $url,$message);
+			}
 		}
 	}
 
@@ -55,22 +74,33 @@ class plgSystemRedirectToEditProfile extends JPlugin
 		}
 
 		$params = $this->params;
-
+		$app = JFactory::getApplication();
+		
+		$whenredirect	= $params->get('whenredirect',0);
 		$whichfield = $params->get('whichfield',0);
 		$message  	= $params->get('message');
+		$profiletype    = $params->get('profiletype');
+		
 
-		if (self::_isRedirectRequired($userId, $whichfield)) {
-			$url = CRoute::_('index.php?option=com_community&view=profile&task=edit',false);
-			//JFactory::getApplication()->redirect( $url,$message);
-			// Handle itself by joomla....by this way we dont conflict into existing Joomla login flow or into other extensions
-			$app = JFactory::getApplication();
-			$app->enqueueMessage($message);
-			$app->setUserState('users.login.form.return', $url);
-			echo JResponse::toString(JFactory::getApplication()->input->get('gzip'));
+// when jomsocial redirect plugin is enabled, we will redirect user directly		
+		if($whenredirect) {
+			return true;
 		}
+		
+		$userProfiletype = XiptAPI::getUserProfiletype($userId);
+		if(in_array($userProfiletype, $profiletype))
+		{
+			if (self::_isRedirectRequired($userId, $whichfield)) {
+				$url = CRoute::_('index.php?option=com_community&view=profile&task=edit',false);
+				//JFactory::getApplication()->redirect( $url,$message);
+				// Handle itself by joomla....by this way we dont conflict into existing Joomla login flow or into other extensions
+				$app->enqueueMessage($message);
+				$app->setUserState('users.login.form.return', $url);
+				echo JResponse::toString(JFactory::getApplication()->input->get('gzip'));
+			}
 		return true;
+		}
 	}
-
 
 	/**
 	 * Check initial condition, Plugin task applicable or not
@@ -105,6 +135,11 @@ class plgSystemRedirectToEditProfile extends JPlugin
 				( $option == 'com_login' || $option == 'com_acctexp') ||
 				( !$userid ) || ( $user->get('isRoot') )				// if user have root permission 
 			) 
+			{	return false; }
+
+		// Check if Upload Avatar ACL is redirecting already
+		if 
+				( $option == 'com_community' && $view == 'profile' && $task == 'uploadAvatar' ) 
 			{	return false; }
 			
 		return true;

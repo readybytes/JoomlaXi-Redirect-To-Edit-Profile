@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <extension version="2.5" type="plugin" group="system" method="upgrade">
   <name>Redirect to Edit Profile</name>
-  <version>2.3</version>
+  <version>2.5</version>
   <creationDate>July 2009</creationDate>
   <author>Team Joomlaxi</author>
   <authorEmail>team@readybytes.in</authorEmail>
@@ -17,12 +17,14 @@
   <files>  	
 	<filename plugin="RedirectToEditProfile">RedirectToEditProfile.php</filename>
 	<filename>index.html</filename>
+	<folder>elements</folder>
   </files>
   
   
   <config>
 	<fields name="params">
-		<fieldset name="basic">
+		<fieldset name="basic" addfieldpath="/plugins/system/RedirectToEditProfile/elements" >
+		<field name="profiletype" type="profiletype" default="" label="XIPT Profile ID" multiple="true" description="Enter XIPT Profile Types to whom you want to redirect to Edit profile page." />
 			<field name="whenredirect" type="radio" default="0" label="When to redirect user" description="Select 'Just After login' when you want to redirect only after login else select 'Everytime'.">
 				<option value="1">Everytime</option>
 				<option value="0">Just After Login</option>
