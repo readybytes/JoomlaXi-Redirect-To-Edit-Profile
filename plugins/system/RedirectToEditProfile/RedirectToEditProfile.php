@@ -138,8 +138,11 @@ class plgSystemRedirectToEditProfile extends JPlugin
 			{	return false; }
 
 		// Check if Upload Avatar ACL is redirecting already
-		if 
-				( $option == 'com_community' && $view == 'profile' && $task == 'uploadAvatar' ) 
+		if ( $option == 'com_community' && $view == 'profile' && $task == 'uploadAvatar' ) 
+			{	return false; }
+			
+		// Check if user is already redirected when he changes avatar
+		if ( $option == 'com_community' && $view == 'photos' && $task == 'changeAvatar' ) 
 			{	return false; }
 			
 		return true;
