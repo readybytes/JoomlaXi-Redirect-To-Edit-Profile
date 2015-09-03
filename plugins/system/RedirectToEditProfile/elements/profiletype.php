@@ -7,7 +7,6 @@
 defined('_JEXEC') or die();
 
 jimport('joomla.form.formfield');
-include_once JPATH_ROOT.'/components/com_xipt/api.xipt.php';
 
 class JFormFieldProfiletype extends JFormField
 {
@@ -16,32 +15,40 @@ class JFormFieldProfiletype extends JFormField
 	function getInput(){
 
 		// get array of all visible profile types (std-class)
-		$pTypeArray = XiptAPI::getProfileTypeIds();
-		
-		if(isset($this->element['addall'])){
-			$reqall 		= new stdClass();
-			$reqall->id 	= 0;
-			$reqall->name 	= 'All';
-			array_unshift($pTypeArray, $reqall);
+		if(JFile::exists(JPATH_ROOT.'/components/com_xipt/api.xipt.php'))
+		{
+			include_once JPATH_ROOT.'/components/com_xipt/api.xipt.php';
+			$pTypeArray = XiptAPI::getProfileTypeIds();
+			
+			if(isset($this->element['addall'])){
+				$reqall 		= new stdClass();
+				$reqall->id 	= 0;
+				$reqall->name 	= 'All';
+				array_unshift($pTypeArray, $reqall);
+			}
+			
+			if(isset($this->element['addnone'])){
+				$reqnone 		= new stdClass();
+				$reqnone->id 	= -1;
+				$reqnone->name 	= 'None';
+				$pTypeArray[]	= $reqnone;
+			}
+			//add multiselect option
+			$attr = ' ';
+			
+			if($this->multiple){
+				$attr .= ' multiple="multiple"';
+			}
+			
+			if($size = $this->element['size']){
+				$attr .= ' size="'.$size.'"';
+			}
+			
+			return JHTML::_('select.genericlist',  $pTypeArray, $this->name, $attr, 'id', 'name', $this->value);
 		}
-		
-		if(isset($this->element['addnone'])){
-			$reqnone 		= new stdClass();
-			$reqnone->id 	= -1;
-			$reqnone->name 	= 'None';
-			$pTypeArray[]	= $reqnone;
+		else
+		{
+			return "<h6>Please install JomSocial Profile type to enable this functionality!</h6>";
 		}
-		//add multiselect option
-		$attr = ' ';
-		
-		if($this->multiple){
-			$attr .= ' multiple="multiple"';
-		}
-		
-		if($size = $this->element['size']){
-			$attr .= ' size="'.$size.'"';
-		}
-		
-		return JHTML::_('select.genericlist',  $pTypeArray, $this->name, $attr, 'id', 'name', $this->value);
 	}
 }

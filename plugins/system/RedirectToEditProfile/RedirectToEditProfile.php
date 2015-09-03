@@ -9,7 +9,9 @@
 
 defined('_JEXEC') or die('Restricted access to this plugin'); 
 
-include_once JPATH_ROOT.'/components/com_xipt/api.xipt.php';
+if(JFile::exists(JPATH_ROOT.'/components/com_xipt/api.xipt.php')){
+	include_once JPATH_ROOT.'/components/com_xipt/api.xipt.php';
+}
 
 if(!defined('DS')){
 	define('DS', DIRECTORY_SEPARATOR);
@@ -28,9 +30,9 @@ class plgSystemRedirectToEditProfile extends JPlugin
 	
 	function onAfterRoute()
 	{
-		$params = $this->params;
-		
-		$userId    =  JFactory::getUser();
+		$params    	 = $this->params;
+		$userId    	 = JFactory::getUser();
+		$xipt_exists = false;
 		
 		//whenredirect 0 means redirect only at login else everytime
 		$whenredirect	= $params->get('whenredirect',0);
@@ -38,7 +40,11 @@ class plgSystemRedirectToEditProfile extends JPlugin
 		$message  		= $params->get('message');
 		$profiletype    = $params->get('profiletype');
 		
-		if (!$profiletype)
+		if(self::_isComponentExists('xipt')){
+			$xipt_exists = true;
+		}
+		
+		if ($xipt_exists && !$profiletype)
 		{
 			return true;
 		}
@@ -46,15 +52,15 @@ class plgSystemRedirectToEditProfile extends JPlugin
 		if(!$whenredirect) { // After login action will be handled by onuserlogin event
 			return true; 
 		}
-	
 		
 		// Check initial conditions
 		if(!self::_isApplicable()) {
 			return false;
 		}
 		
-		$userProfiletype = XiptAPI::getUserProfiletype($userId->id);
-		if(in_array($userProfiletype, $profiletype))
+		$userProfiletype = ($xipt_exists) ? XiptAPI::getUserProfiletype($userId->id) : null;
+		
+		if((empty($userProfiletype) || in_array($userProfiletype, $profiletype)))
 		{		
 			if (self::_isRedirectRequired(JFactory::getUser()->id, $whichfield)) {
 				$url = CRoute::_('index.php?option=com_community&view=profile&task=edit',false);
@@ -66,7 +72,8 @@ class plgSystemRedirectToEditProfile extends JPlugin
 
 	function onUserLogin($user,$option)
 	{
-		$userId		= JUserHelper::getUserId($user['username'] );
+		$userId		 = JUserHelper::getUserId($user['username'] );
+		$xipt_exists = false;
 		
 		// Check initial conditions
 		if(!self::_isApplicable($userId)) {
@@ -81,14 +88,17 @@ class plgSystemRedirectToEditProfile extends JPlugin
 		$message  	= $params->get('message');
 		$profiletype    = $params->get('profiletype');
 		
-
-// when jomsocial redirect plugin is enabled, we will redirect user directly		
+		if(self::_isComponentExists('xipt')){
+			$xipt_exists = true;
+		}
+		
+		// when jomsocial redirect plugin is enabled, we will redirect user directly		
 		if($whenredirect) {
 			return true;
 		}
+		$userProfiletype = ($xipt_exists) ? XiptAPI::getUserProfiletype($userId->id) : null;
 		
-		$userProfiletype = XiptAPI::getUserProfiletype($userId);
-		if(in_array($userProfiletype, $profiletype))
+		if((empty($userProfiletype) || in_array($userProfiletype, $profiletype)))
 		{
 			if (self::_isRedirectRequired($userId, $whichfield)) {
 				$url = CRoute::_('index.php?option=com_community&view=profile&task=edit',false);
